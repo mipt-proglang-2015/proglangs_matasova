@@ -1,0 +1,11 @@
+"""
+Library with algorithms written in c++. Created as the task of the course on programming languages.
+
+Functions available:
+
+
+"""
+__version__ = "0.0.1"
+__author__ = "mataelle"
+__file__ = "algolib.so"
+

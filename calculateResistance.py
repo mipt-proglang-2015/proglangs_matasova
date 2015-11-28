@@ -1,4 +1,5 @@
-import algolib, time, sys, csv
+import time, sys, csv
+from algolib import algolib
 from xml.dom.minidom import parse
 
 if __name__ == "__main__" :
