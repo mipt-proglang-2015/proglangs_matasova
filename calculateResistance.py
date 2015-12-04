@@ -2,21 +2,43 @@ import time, sys, csv
 from algolib import algolib
 from xml.dom.minidom import parse
 
-if __name__ == "__main__" :
-	if len(sys.argv) != 3 :
-		print("Usage {0} input.xml output.csv".format(sys.argv[0]))
-	else :
-		inputFile, outputFile = sys.argv[1], sys.argv[2]
+'''
+	python module solving fitst task
+'''
+
+def readFromXML(inputFile) :
+
+	'''
+		read from xml
+	'''
+
+	dom = parse(inputFile)
+	nets = dom.getElementsByTagName('net')
+	resistors = dom.getElementsByTagName('resistor')
+	capactors = dom.getElementsByTagName('capactor')
+	diodes = dom.getElementsByTagName('diode')
+	return { 'resistors':resistors, 'capactors':capactors, 'diodes':diodes }
+
+def writeToCsv(outputFile, matrix):
+
+	'''
+		write to csv
+	'''
+
+	csvfile = open(outputFile, 'w', newline='')
+	csvWriter = csv.writer(csvfile, delimiter=',')
+	for m in matrix :
+		csvWriter.writerow([round(m[i], 7) for i in range(len(m))])
+
+
+def runAlgo(inputFile, outputFile) :
+
+		'''
+			running main algo
+		'''
+
 		start = time.process_time()
 
-		#read from xml
-		dom = parse(inputFile)
-		nets = dom.getElementsByTagName('net')
-		resistors = dom.getElementsByTagName('resistor')
-		capactors = dom.getElementsByTagName('capactor')
-		diodes = dom.getElementsByTagName('diode')
-
-		#fill init matrix
 		matrix = []
 		for j in range(len(nets)) : matrix.append([0 for i in range(len(nets))])
 
@@ -29,19 +51,22 @@ if __name__ == "__main__" :
 			next = float(attrs['reverse_resistance'].value) if diode else float(attrs['resistance'].value)
 			matrix[int(attrs['net_to'].value)-1][int(attrs['net_from'].value)-1] = prev*next/(prev+next) if prev > 0 else next
 				
+		elems = readFromXML(inputFile)
+		for resistor in elems['resistors'] : addToMatrix(resistor.attributes, False)
+		for capactor in elems['capactors'] : addToMatrix(capactor.attributes, False)
+		for diode in elems['diodes'] : addToMatrix(diode.attributes, True)
 
-		for resistor in resistors : addToMatrix(resistor.attributes, False)
-		for capactor in capactors : addToMatrix(capactor.attributes, False)
-		for diode in diodes : addToMatrix(diode.attributes, True)
-
-		#run algo
 		matrix = algolib.FloydWarshellBasedAlgo(matrix)
 
-		end = time.process_time()
+		writeToCsv(outputFile, matrix)
 
-		#write to csv
-		csvfile = open(outputFile, 'w', newline='')
-		csvWriter = csv.writer(csvfile, delimiter=',')
-		for m in matrix :
-			csvWriter.writerow([round(m[i], 7) for i in range(len(m))])
+		end = time.process_time()
 		print("Python calculations time: {:.0f} msec".format(1000*(end-start)))
+
+
+if __name__ == "__main__" :
+	if len(sys.argv) != 3 :
+		print("Usage {0} input.xml output.csv".format(sys.argv[0]))
+	else :
+		inputFile, outputFile = sys.argv[1], sys.argv[2]
+		runAlgo(inputFile, outputFile)
