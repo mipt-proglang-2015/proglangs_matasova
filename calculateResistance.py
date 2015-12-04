@@ -1,5 +1,5 @@
 import time, sys, csv
-from algolib import algolib
+import algolib
 from xml.dom.minidom import parse
 
 '''
@@ -17,7 +17,7 @@ def readFromXML(inputFile) :
 	resistors = dom.getElementsByTagName('resistor')
 	capactors = dom.getElementsByTagName('capactor')
 	diodes = dom.getElementsByTagName('diode')
-	return { 'resistors':resistors, 'capactors':capactors, 'diodes':diodes }
+	return { 'nets':nets, 'resistors':resistors, 'capactors':capactors, 'diodes':diodes }
 
 def writeToCsv(outputFile, matrix):
 
@@ -40,7 +40,8 @@ def runAlgo(inputFile, outputFile) :
 		start = time.process_time()
 
 		matrix = []
-		for j in range(len(nets)) : matrix.append([0 for i in range(len(nets))])
+		elems = readFromXML(inputFile)
+		for j in range(len(elems['nets'])) : matrix.append([0 for i in range(len(elems['nets']))])
 
 		def addToMatrix(attrs, diode):
 			prev = matrix[int(attrs['net_from'].value)-1][int(attrs['net_to'].value)-1]
@@ -51,7 +52,6 @@ def runAlgo(inputFile, outputFile) :
 			next = float(attrs['reverse_resistance'].value) if diode else float(attrs['resistance'].value)
 			matrix[int(attrs['net_to'].value)-1][int(attrs['net_from'].value)-1] = prev*next/(prev+next) if prev > 0 else next
 				
-		elems = readFromXML(inputFile)
 		for resistor in elems['resistors'] : addToMatrix(resistor.attributes, False)
 		for capactor in elems['capactors'] : addToMatrix(capactor.attributes, False)
 		for diode in elems['diodes'] : addToMatrix(diode.attributes, True)
