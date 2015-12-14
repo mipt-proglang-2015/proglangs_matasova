@@ -66,7 +66,7 @@ PyMODINIT_FUNC PyInit_algolib()
 	};
 	static PyModuleDef ModuleDef = {
 		PyModuleDef_HEAD_INIT,
-		"algoLib",
+		"algolib",
 		"algos",
 		-1, ModuleMethods, 
 		NULL, NULL, NULL, NULL
